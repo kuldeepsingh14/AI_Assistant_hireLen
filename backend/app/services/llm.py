@@ -98,8 +98,9 @@ async def complete(
     settings = get_settings()
     if not settings.llm_enabled:
         raise LLMUnavailable(
-            "No GROQ_API_KEY configured. Add a free key from https://console.groq.com/keys "
-            "to backend/.env to enable AI answers."
+            "No GROQ_API_KEY is configured. Add a free key from "
+            "https://console.groq.com/keys to backend/.env locally, or to the host's "
+            "environment settings in production."
         )
 
     chosen = model or settings.groq_model
@@ -128,7 +129,20 @@ async def complete(
         raise LLMUnavailable(f"Could not reach the model provider: {exc}") from exc
 
     if resp.status_code == 401:
-        raise LLMUnavailable("The GROQ_API_KEY was rejected. Check the key in backend/.env.")
+        # Naming backend/.env is wrong in production, where the key comes from
+        # the host's environment settings - and sends people to edit a file
+        # that is not being read.
+        key = settings.groq_api_key.strip()
+        shape = (
+            f"The configured value is {len(key)} characters"
+            f"{' and does not start with gsk_' if not key.startswith('gsk_') else ''}; "
+            "a Groq key is 56 characters starting with gsk_."
+        )
+        raise LLMUnavailable(
+            "The GROQ_API_KEY was rejected by the provider. Re-paste it wherever this "
+            "service reads its environment (backend/.env locally, or the host's "
+            f"environment settings in production). {shape}"
+        )
 
     if resp.status_code == 429:
         delay = _retry_delay(resp)
