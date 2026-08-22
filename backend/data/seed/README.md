@@ -14,9 +14,11 @@ Put in this folder:
 Uploading through the admin console always takes precedence while the server is
 running; these files only fill an empty profile.
 
-> **This puts your resume in your git history.** This repository is public, so
-> the folder is deliberately left empty — a committed resume would make your
-> phone number and email permanently searchable, and removing them later does
-> not erase them from history.
+> **This repository is public, so what lives here is public and permanent.**
+> `resume.md` is therefore a *contact-free* copy: the phone number and email
+> address have been stripped. Everything else — employers, projects, education —
+> is the same information a public LinkedIn profile carries.
 >
-> Only use this folder if you make the repository private first.
+> Do not add the original PDF here while the repo is public. Uploading it through
+> the admin console still enables the résumé download for visitors; it just does
+> not survive a redeploy.

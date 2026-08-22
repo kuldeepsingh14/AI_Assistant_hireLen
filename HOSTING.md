@@ -7,13 +7,16 @@ Both read from one repository.
 
 ## This repository is public
 
-That means **no resume is committed**. `backend/data/seed/` is intentionally
-empty: committing a resume would put your phone number and email into public git
-history permanently, where deleting them later does not remove them.
+Render's free disk is ephemeral: **every deploy wipes it**, and since every code
+push triggers a deploy, anything uploaded through the admin console disappears
+regularly.
 
-The trade-off is that Render's free disk is ephemeral. After a redeploy — or a
-wake from sleep, if keep-alive is not running — the profile is gone and you must
-re-upload the resume through the admin console.
+`backend/data/seed/` solves that without leaking anything. It holds a
+**contact-free** copy of the résumé — phone number and email stripped — plus the
+context notes. On boot, if no profile is loaded, both are indexed automatically.
+So the assistant answers correctly after every deploy, and the only thing a
+public repo costs you is the résumé *download* button, which needs the original
+file uploaded through the console.
 
 Visitors do not see a broken site in that window: the assistant says it is being
 set up, and the composer is disabled. It never routes a visitor to the admin
@@ -112,14 +115,24 @@ way, they will not both fit and Render will suspend them.
 
 ---
 
-## 5. Load your profile
+## 5. Profile content
 
-Open your Vercel URL, click your name in the header, enter the `ADMIN_TOKEN`
-from Render, and upload your resume. Add your context notes in the same console.
+The assistant seeds itself from `backend/data/seed/` on every boot, so there is
+nothing to do after a deploy.
 
-**Repeat this after every redeploy.** On a public repo nothing is seeded, so the
-ephemeral disk starts empty each time. Keep a copy of your notes text somewhere
-local so re-entering them is a paste rather than a rewrite.
+Two settings are worth having in Render → Environment:
+
+| Variable | Value | Why |
+| --- | --- | --- |
+| `OWNER_NAME` | `Kuldeep Singh` | Shows the name from the first paint, even before anything is indexed |
+| `OWNER_PRONOUNS` | `he/him`, `she/her`, or `they/them` | The one thing that cannot be read from a résumé |
+
+To enable the résumé **download** button, upload the original file through the
+admin console. That copy lives on the ephemeral disk, so redo it after a deploy
+if the download matters to you.
+
+To update the seeded content, edit `backend/data/seed/resume.md` or `notes.md`
+and push.
 
 ---
 
@@ -127,7 +140,8 @@ local so re-entering them is a paste rather than a rewrite.
 
 | Data | Survives? | Why |
 | --- | --- | --- |
-| Resume + notes | **No** | Nothing is seeded on a public repo — re-upload them |
+| Résumé answers + notes | **Yes** | Re-indexed from `backend/data/seed/` |
+| Résumé PDF download | No | The original file is not committed on a public repo |
 | Question log | No | SQLite file on the ephemeral disk |
 | Recruiter contacts | **No** | Same — export anything you need |
 
