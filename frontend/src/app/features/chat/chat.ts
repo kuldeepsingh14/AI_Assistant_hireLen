@@ -49,6 +49,7 @@ export class Chat implements OnInit, AfterViewChecked {
 
   // ---- recruiter contact capture ----
   readonly leadOpen = signal(false);
+  readonly leadDismissedNow = signal(Chat.leadDismissed());
   readonly leadSent = signal(false);
   readonly leadBusy = signal(false);
   readonly leadError = signal('');
@@ -99,12 +100,9 @@ export class Chat implements OnInit, AfterViewChecked {
     if (this.mode() === mode) return;
     this.mode.set(mode);
     this.loadSuggestions();
-    // Offer the contact card on entering HR mode, but only once per visit and
-    // never as a gate - a recruiter who has to fill a form before getting an
-    // answer just closes the tab.
-    if (mode === 'hr' && !this.leadSent() && !Chat.leadDismissed()) {
-      this.leadOpen.set(true);
-    }
+    // Switching to HR mode reveals the invitation bar (see the template); it
+    // deliberately does not open the form over the conversation, because a
+    // recruiter who has to dismiss a dialog before getting an answer leaves.
     this.messages.update((m) => [
       ...m,
       {
@@ -233,8 +231,16 @@ export class Chat implements OnInit, AfterViewChecked {
     this.leadOpen.set(true);
   }
 
+  /** Close the drawer but keep the invitation bar available. */
+  closeLead(): void {
+    this.leadOpen.set(false);
+    this.leadError.set('');
+  }
+
+  /** Dismiss the invitation entirely - remembered across visits. */
   dismissLead(): void {
     this.leadOpen.set(false);
+    this.leadDismissedNow.set(true);
     try {
       // Remember the "not now", so it is asked once rather than every toggle.
       localStorage.setItem(Chat.LEAD_KEY, '1');

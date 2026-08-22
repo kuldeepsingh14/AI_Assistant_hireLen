@@ -53,7 +53,9 @@ class IngestResponse(BaseModel):
 
 class ProfileStatus(BaseModel):
     ready: bool
-    filename: str | None
+    # No filename: it is an upload artefact ("Kuldeep_Singh_ai (1).pdf"), this
+    # endpoint is public, and nothing needs it. The download route names the
+    # file after the owner instead.
     chunks: int
     sections: list[str]
     note_sections: list[str] = Field(default_factory=list)

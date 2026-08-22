@@ -15,15 +15,16 @@
           <dt>Resume</dt>
           <dd>
             @if (p.ready) {
+              <span class="pill ok">{{ p.owner_name }}'s résumé</span>
               @if (p.resume_downloadable) {
                 <a class="btn small-btn" [href]="resumeUrl()" download>
-                  <span aria-hidden="true">↓</span> Download {{ p.filename }}
+                  <span aria-hidden="true">↓</span> Download résumé
                 </a>
                 <span class="muted small">Anyone can download this from the header.</span>
               } @else {
                 <span class="muted small">
-                  {{ p.filename }} — indexed, but the original file isn't on disk to download.
-                  Re-upload it to enable the download button.
+                  Indexed, but the original file isn't on disk to download. Re-upload it to
+                  enable the download button.
                 </span>
               }
             } @else {
@@ -136,7 +137,7 @@
 
       @if (result(); as r) {
         <div class="success">
-          <strong>Indexed {{ r.filename }}</strong> — {{ r.characters | number }} characters split
+          <strong>Résumé indexed</strong> — {{ r.characters | number }} characters split
           into {{ r.chunks }} chunks across {{ r.sections.length }} sections.
           <div class="sections">
             @for (s of r.sections; track s) {

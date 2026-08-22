@@ -104,60 +104,14 @@
     }
   </div>
 
-  @if (leadOpen()) {
-    <section class="lead-card">
-      <div class="lead-head">
-        <div>
-          <h3>Hiring for something?</h3>
-          <p class="small muted">
-            Leave your details and {{ ownerName() }} can follow up directly. Optional — you can
-            keep asking without this.
-          </p>
-        </div>
-        <button class="icon-btn" (click)="dismissLead()" aria-label="Dismiss">✕</button>
-      </div>
-
-      <div class="lead-grid">
-        <label>
-          <span class="lbl">Your name *</span>
-          <input type="text" [ngModel]="lead().name" (ngModelChange)="updateLead('name', $event)"
-                 name="leadName" placeholder="Priya Nair" />
-        </label>
-        <label>
-          <span class="lbl">Company</span>
-          <input type="text" [ngModel]="lead().company" (ngModelChange)="updateLead('company', $event)"
-                 name="leadCompany" placeholder="Acme Corp" />
-        </label>
-        <label>
-          <span class="lbl">Email</span>
-          <input type="text" [ngModel]="lead().email" (ngModelChange)="updateLead('email', $event)"
-                 name="leadEmail" placeholder="priya@acme.com" />
-        </label>
-        <label>
-          <span class="lbl">Phone</span>
-          <input type="text" [ngModel]="lead().phone" (ngModelChange)="updateLead('phone', $event)"
-                 name="leadPhone" placeholder="+91 98765 43210" />
-        </label>
-        <label class="wide">
-          <span class="lbl">Role you're hiring for</span>
-          <input type="text" [ngModel]="lead().role" (ngModelChange)="updateLead('role', $event)"
-                 name="leadRole" placeholder="Backend Engineer — Java / Spring" />
-        </label>
-      </div>
-
-      @if (leadError()) {
-        <div class="alert">{{ leadError() }}</div>
-      }
-
-      <div class="lead-actions">
-        <span class="small muted">Email or phone, so they can reach you back.</span>
-        <button class="btn small-btn" (click)="dismissLead()">Not now</button>
-        <button class="btn btn-primary small-btn" (click)="submitLead()"
-                [disabled]="!leadValid || leadBusy()">
-          {{ leadBusy() ? 'Sending…' : 'Send details' }}
-        </button>
-      </div>
-    </section>
+  @if (mode() === 'hr' && profile()?.ready && !leadSent() && !leadDismissedNow()) {
+    <div class="lead-bar">
+      <span class="lead-bar-text">
+        Hiring for something? Leave your details and {{ ownerName() }} can follow up.
+      </span>
+      <button class="btn small-btn btn-primary" (click)="openLead()">Leave details</button>
+      <button class="icon-btn" (click)="dismissLead()" aria-label="Dismiss">✕</button>
+    </div>
   }
 
   @if (suggestions().length && !busy()) {
@@ -227,5 +181,67 @@
         <button class="btn btn-primary" (click)="downloadPack()">Download as Markdown</button>
       </footer>
     }
+  </aside>
+}
+
+<!-- ---------- recruiter contact drawer ---------- -->
+@if (leadOpen()) {
+  <div class="backdrop" (click)="closeLead()"></div>
+  <aside class="drawer" role="dialog" aria-label="Leave your contact details">
+    <header class="drawer-head">
+      <div>
+        <h3>Leave your details</h3>
+        <p class="small muted">
+          {{ ownerName() }} sees these alongside the questions you asked here. Optional — you can
+          keep asking without it.
+        </p>
+      </div>
+      <button class="btn small-btn" (click)="closeLead()" aria-label="Close">✕</button>
+    </header>
+
+    <div class="drawer-body">
+      <div class="field-grid">
+        <label class="field">
+          <span class="lbl">Your name <span class="req-mark">*</span></span>
+          <input type="text" [ngModel]="lead().name" (ngModelChange)="updateLead('name', $event)"
+                 name="leadName" placeholder="Priya Nair" autocomplete="name" />
+        </label>
+        <label class="field">
+          <span class="lbl">Company</span>
+          <input type="text" [ngModel]="lead().company" (ngModelChange)="updateLead('company', $event)"
+                 name="leadCompany" placeholder="Acme Corp" autocomplete="organization" />
+        </label>
+        <label class="field">
+          <span class="lbl">Email</span>
+          <input type="text" [ngModel]="lead().email" (ngModelChange)="updateLead('email', $event)"
+                 name="leadEmail" placeholder="priya@acme.com" autocomplete="email" />
+        </label>
+        <label class="field">
+          <span class="lbl">Phone</span>
+          <input type="text" [ngModel]="lead().phone" (ngModelChange)="updateLead('phone', $event)"
+                 name="leadPhone" placeholder="+91 98765 43210" autocomplete="tel" />
+        </label>
+        <label class="field wide">
+          <span class="lbl">Role you're hiring for</span>
+          <input type="text" [ngModel]="lead().role" (ngModelChange)="updateLead('role', $event)"
+                 name="leadRole" placeholder="Backend Engineer — Java / Spring" />
+        </label>
+      </div>
+
+      <p class="small muted field-hint">
+        Name is required, plus an email or phone so they can reach you back.
+      </p>
+
+      @if (leadError()) {
+        <div class="alert">{{ leadError() }}</div>
+      }
+    </div>
+
+    <footer class="drawer-foot">
+      <button class="btn" (click)="closeLead()">Cancel</button>
+      <button class="btn btn-primary" (click)="submitLead()" [disabled]="!leadValid || leadBusy()">
+        {{ leadBusy() ? 'Sending…' : 'Send details' }}
+      </button>
+    </footer>
   </aside>
 }

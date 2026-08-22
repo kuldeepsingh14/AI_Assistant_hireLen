@@ -35,7 +35,6 @@ export interface ChatResponse {
 
 export interface ProfileStatus {
   ready: boolean;
-  filename: string | null;
   chunks: number;
   sections: string[];
   note_sections: string[];

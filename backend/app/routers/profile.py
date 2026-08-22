@@ -32,7 +32,6 @@ async def get_status() -> ProfileStatus:
     settings = get_settings()
     return ProfileStatus(
         ready=index.ready,
-        filename=index.filename,
         chunks=len(index.chunks),
         sections=index.sections,
         note_sections=index.note_sections,

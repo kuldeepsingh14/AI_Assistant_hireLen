@@ -69,6 +69,10 @@
 .head-actions {
   display: flex;
   gap: 0.5rem;
+  /* HR mode adds two more buttons beside the mode switch; without this they
+     overflow the row instead of dropping to the next line. */
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .small-btn {
@@ -276,8 +280,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
-  max-height: 25%;
-  overflow-y: auto;
 }
 
 .chip {
@@ -411,36 +413,30 @@
   }
 }
 
-/* ---------- recruiter contact card ---------- */
-.lead-card {
+/* ---------- recruiter invitation bar ---------- */
+/* One line inside the conversation column. The form itself lives in a drawer,
+   because a five-field form here competed with the messages for a fixed height
+   and ended up with its own scrollbar. */
+.lead-bar {
   flex: 0 0 auto;
-  max-height: 45%;
-  overflow-y: auto;
-  border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--border));
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0.55rem 0.55rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
   background: linear-gradient(
-    155deg,
-    color-mix(in srgb, var(--accent) 8%, var(--surface)),
-    var(--surface) 65%
+    100deg,
+    color-mix(in srgb, var(--accent) 10%, var(--surface)),
+    var(--surface) 70%
   );
   border-radius: var(--radius);
-  padding: 0.85rem 1rem;
-  box-shadow: var(--shadow);
 }
 
-.lead-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-}
-
-.lead-head h3 {
-  margin: 0 0 0.15rem;
-  font-size: 1rem;
-}
-
-.lead-head p {
-  margin: 0;
+.lead-bar-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.88rem;
+  color: var(--muted-fg);
 }
 
 .icon-btn {
@@ -449,7 +445,7 @@
   background: transparent;
   color: var(--muted-fg);
   cursor: pointer;
-  padding: 0.15rem 0.35rem;
+  padding: 0.25rem 0.45rem;
   border-radius: 6px;
   line-height: 1;
 }
@@ -459,45 +455,65 @@
   background: var(--surface-3);
 }
 
-.lead-grid {
+/* ---------- contact form inside the drawer ---------- */
+.field-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.5rem 0.75rem;
-  margin: 0.7rem 0 0;
+  gap: 0.85rem 0.9rem;
 }
 
-.lead-grid .wide {
+.field-grid .wide {
   grid-column: 1 / -1;
 }
 
-.lead-grid .lbl {
-  display: block;
-  font-size: 0.78rem;
+.field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.field .lbl {
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--muted-fg);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.3rem;
 }
 
-.lead-grid input {
-  padding: 0.45rem 0.65rem;
-  font-size: 0.9rem;
+.req-mark {
+  color: var(--accent);
 }
 
-.lead-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin-top: 0.7rem;
-  flex-wrap: wrap;
+.field-hint {
+  margin: 0.9rem 0 0;
 }
 
-.lead-actions .small {
-  flex: 1;
-  min-width: 12rem;
-}
-
-@media (max-width: 560px) {
-  .lead-grid {
+@media (max-width: 520px) {
+  .field-grid {
     grid-template-columns: 1fr;
+  }
+  .lead-bar {
+    flex-wrap: wrap;
+  }
+  .lead-bar-text {
+    flex: 1 0 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .chat-head {
+    align-items: stretch;
+  }
+  .mode-switch,
+  .head-actions {
+    justify-content: center;
+  }
+  .mode-switch {
+    width: 100%;
+  }
+  .mode-switch button {
+    flex: 1;
+  }
+  .bubble-wrap {
+    max-width: 88%;
   }
 }
