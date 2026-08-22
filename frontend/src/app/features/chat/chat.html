@@ -31,6 +31,12 @@
   </header>
 
   @if (profile(); as p) {
+    @if (!p.ready) {
+      <div class="notice">
+        No profile is loaded at the moment, so the assistant has nothing to answer from.
+        If you're the owner, open the admin console from the header to upload a résumé.
+      </div>
+    }
     @if (p.ready && !p.llm_enabled) {
       <div class="notice">
         The resume is indexed, but no <code>GROQ_API_KEY</code> is set on the backend — answers
@@ -174,10 +180,14 @@
           ? 'Ask a screening question — e.g. why should we hire them?'
           : 'Ask anything about ' + ownerName() + '…'
       "
-      [disabled]="busy()"
+      [disabled]="busy() || !profile()?.ready"
       aria-label="Your question"
     ></textarea>
-    <button class="btn btn-primary" type="submit" [disabled]="busy() || !draft().trim()">
+    <button
+      class="btn btn-primary"
+      type="submit"
+      [disabled]="busy() || !draft().trim() || !profile()?.ready"
+    >
       {{ busy() ? 'Thinking…' : 'Send' }}
     </button>
   </form>

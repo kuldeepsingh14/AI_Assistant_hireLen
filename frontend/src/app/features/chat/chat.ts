@@ -77,7 +77,7 @@ export class Chat implements OnInit, AfterViewChecked {
         role: 'assistant',
         content: p.ready
           ? `Hi — I'm ${who}'s AI assistant. Everything I say comes from their résumé and the notes they keep about what they're working on now, and I'll show you the exact source behind each answer. Ask me anything, or switch to **HR mode** above for recruiter-style answers.`
-          : `No resume has been loaded yet. Head to the **Setup** tab to upload one, then come back and ask me anything.`,
+          : `This assistant is being set up right now, so I can't answer questions about ${who} just yet. Please check back shortly.`,
       },
     ]);
   }

@@ -5,18 +5,23 @@ Both read from one repository.
 
 ---
 
-## Before you start: make the repo private
+## This repository is public
 
-The `backend/data/seed/` folder is how the site survives a restart — Render's
-free disk is wiped on every deploy and every wake-from-sleep, so the resume has
-to be committed to come back. That puts your phone number and email in git
-history permanently.
+That means **no resume is committed**. `backend/data/seed/` is intentionally
+empty: committing a resume would put your phone number and email into public git
+history permanently, where deleting them later does not remove them.
 
-**Recommended: keep the GitHub repo private.** Vercel and Render both deploy
-from private repos on their free tiers, so you lose nothing.
+The trade-off is that Render's free disk is ephemeral. After a redeploy — or a
+wake from sleep, if keep-alive is not running — the profile is gone and you must
+re-upload the resume through the admin console.
 
-If you want the repo public, leave `backend/data/seed/` empty and re-upload your
-resume through the admin console after each restart.
+Visitors do not see a broken site in that window: the assistant says it is being
+set up, and the composer is disabled. It never routes a visitor to the admin
+screen.
+
+If you later decide the convenience is worth it, make the repo private first,
+then drop your resume and a `notes.md` into `backend/data/seed/`. It is indexed
+on boot whenever no profile is loaded.
 
 Never commit `backend/.env` or `backend/data/analytics.db` — the first holds your
 API key, the second holds recruiters' contact details. Both are already in
@@ -107,18 +112,14 @@ way, they will not both fit and Render will suspend them.
 
 ---
 
-## 5. Seed the profile
+## 5. Load your profile
 
-So the site is never empty after a restart, commit into `backend/data/seed/`:
+Open your Vercel URL, click your name in the header, enter the `ADMIN_TOKEN`
+from Render, and upload your resume. Add your context notes in the same console.
 
-- your resume — one `.pdf`, `.docx`, `.txt`, or `.md`
-- `notes.md` *(optional)* — the context notes from the admin console
-
-They are indexed on boot **only when no profile is already loaded**, so an
-upload through the console always wins while the server is running.
-
-To export the notes you have already written, open the admin console, copy the
-notes box, and save it as `backend/data/seed/notes.md`.
+**Repeat this after every redeploy.** On a public repo nothing is seeded, so the
+ephemeral disk starts empty each time. Keep a copy of your notes text somewhere
+local so re-entering them is a paste rather than a rewrite.
 
 ---
 
@@ -126,14 +127,21 @@ notes box, and save it as `backend/data/seed/notes.md`.
 
 | Data | Survives? | Why |
 | --- | --- | --- |
-| Resume + notes | Yes, if seeded | Re-indexed from the committed files |
-| Uploaded resume (console) | No | Ephemeral disk |
+| Resume + notes | **No** | Nothing is seeded on a public repo — re-upload them |
 | Question log | No | SQLite file on the ephemeral disk |
 | Recruiter contacts | **No** | Same — export anything you need |
 
-Recruiter contacts being lost on a restart is the one that stings. Check the
-admin console periodically, or move `analytics.db` onto a Render persistent disk
-(a paid add-on) if inbound leads start mattering.
+Recruiter contacts being lost is the one that stings, since those are real
+inbound leads. Check the admin console periodically rather than assuming they
+will keep. Moving `analytics.db` onto a Render persistent disk (a paid add-on)
+is the only way to make them durable.
+
+Keep-alive keeps the service awake, so in practice the disk is only wiped by a
+redeploy rather than by idling.
+
+Your local copies live in `backend/data/` (gitignored): `index/notes.txt` holds
+the notes text you can paste straight back into the console, and
+`resume/` holds the last resume you uploaded.
 
 ---
 

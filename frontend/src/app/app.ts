@@ -53,8 +53,9 @@ export class App implements OnInit {
         this.ownerName.set(p.owner_name);
         this.ready.set(p.ready);
         this.resumeDownloadable.set(p.resume_downloadable);
-        // Nothing to ask about yet - send the owner straight to setup.
-        if (!p.ready) this.tab.set('setup');
+        // Deliberately do NOT jump to the admin tab when the profile is empty.
+        // On a host with an ephemeral disk that state is reached by a restart,
+        // and a visiting recruiter would land on an admin login screen.
       },
       error: () => this.ready.set(false),
     });

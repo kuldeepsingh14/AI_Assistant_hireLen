@@ -14,7 +14,9 @@ Put in this folder:
 Uploading through the admin console always takes precedence while the server is
 running; these files only fill an empty profile.
 
-> **This puts your resume in your git history.** If the repository is public,
-> your phone number and email become permanently searchable. Keep the repo
-> private, or leave this folder empty and re-upload through the console after
-> each restart.
+> **This puts your resume in your git history.** This repository is public, so
+> the folder is deliberately left empty — a committed resume would make your
+> phone number and email permanently searchable, and removing them later does
+> not erase them from history.
+>
+> Only use this folder if you make the repository private first.
