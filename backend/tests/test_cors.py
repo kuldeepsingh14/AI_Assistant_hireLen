@@ -50,3 +50,30 @@ def test_disabled_in_production() -> None:
 def test_explicit_origins_still_parsed() -> None:
     settings = Settings(allowed_origins="https://a.com, https://b.com ,")
     assert settings.origins == ["https://a.com", "https://b.com"]
+
+
+# ---------- allow_methods must cover every route ----------
+def test_cors_allows_every_method_the_app_actually_uses() -> None:
+    """Catch "added an endpoint, forgot CORS".
+
+    A method missing from allow_methods passes every server-side test and fails
+    only in a real browser, where it looks like the backend is unreachable.
+    """
+    from starlette.middleware.cors import CORSMiddleware
+
+    from app.main import app
+
+    configured = None
+    for mw in app.user_middleware:
+        if mw.cls is CORSMiddleware:
+            configured = {m.upper() for m in mw.kwargs["allow_methods"]}
+    assert configured is not None, "CORSMiddleware is not installed"
+
+    used = set()
+    for route in app.routes:
+        for method in getattr(route, "methods", set()) or set():
+            if method not in ("HEAD", "OPTIONS"):
+                used.add(method)
+
+    missing = used - configured
+    assert not missing, f"routes use {sorted(missing)} but CORS does not allow them"

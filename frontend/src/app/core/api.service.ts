@@ -173,12 +173,15 @@ export class ApiService {
 function toError(err: HttpErrorResponse) {
   let message = 'Something went wrong.';
   if (err.status === 0) {
-    // The browser reports a blocked-by-CORS response identically to a dead
-    // server, so name both causes rather than guessing the wrong one.
+    // The browser hides the reason for a blocked request from JS, so this can
+    // be a dead server, a refused origin, or a method missing from the CORS
+    // allow-list. Naming only the origin sent a real debugging session down
+    // the wrong path, so list what to check instead of guessing.
     message =
-      `No response from the API at ${environment.apiUrl}. Either the backend ` +
-      `isn't running, or it rejected this page's origin (${location.origin}) — ` +
-      `add that origin to ALLOWED_ORIGINS in backend/.env and restart it.`;
+      `No response from the API at ${environment.apiUrl}. The backend may be ` +
+      `down, or the browser blocked this request. Check /api/health — it ` +
+      `reports the origins the server accepts, which should include ` +
+      `${location.origin}.`;
   } else if (typeof err.error?.detail === 'string') {
     message = err.error.detail;
   } else if (Array.isArray(err.error?.detail)) {

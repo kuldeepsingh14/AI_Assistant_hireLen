@@ -56,7 +56,10 @@ app.add_middleware(
     allow_origins=settings.origins,
     allow_origin_regex=settings.local_origin_regex,
     allow_credentials=False,
-    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+    # Must cover every method any route uses; test_cors.py asserts this stays
+    # in sync, because a missing one fails only in a browser and surfaces as
+    # "the API is unreachable" rather than "that method is not allowed".
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "X-Admin-Token"],
 )
 
