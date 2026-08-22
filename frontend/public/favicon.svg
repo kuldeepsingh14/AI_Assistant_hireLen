@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="HireLens">
+  <defs>
+    <!-- Same indigo -> violet as the app's --gradient, so the tab icon and the
+         header logo read as one brand. -->
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5546e8"/>
+      <stop offset="1" stop-color="#9333ea"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="32" height="32" rx="7" fill="url(#g)"/>
+
+  <!-- A lens over a document. Strokes are deliberately heavy: at a 16px tab
+       size anything thinner than ~2 units disappears into the background. -->
+  <g fill="none" stroke="#ffffff" stroke-linecap="round">
+    <line x1="11" y1="12.5" x2="18" y2="12.5" stroke-width="2" opacity=".55"/>
+    <line x1="11" y1="16.5" x2="16" y2="16.5" stroke-width="2" opacity=".55"/>
+    <circle cx="14.5" cy="14.5" r="6.5" stroke-width="2.6"/>
+    <line x1="19.4" y1="19.4" x2="24" y2="24" stroke-width="3.2"/>
+  </g>
+</svg>
