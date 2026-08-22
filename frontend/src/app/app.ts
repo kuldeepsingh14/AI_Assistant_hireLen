@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 
 import { ApiService } from './core/api.service';
+import { ProfileStore } from './core/profile.store';
 import { Chat } from './features/chat/chat';
 import { Match } from './features/match/match';
 import { Setup } from './features/setup/setup';
@@ -21,11 +22,15 @@ export class App implements OnInit {
   private readonly api = inject(ApiService);
 
   readonly tab = signal<Tab>('chat');
-  readonly ownerName = signal('');
-  readonly ready = signal<boolean | null>(null);
+  private readonly profiles = inject(ProfileStore);
+
+  readonly ownerName = this.profiles.ownerName;
+  readonly ready = this.profiles.ready;
   readonly theme = signal<'dark' | 'light'>('dark');
 
-  readonly resumeDownloadable = signal(false);
+  readonly resumeDownloadable = computed(
+    () => this.profiles.profile()?.resume_downloadable ?? false,
+  );
   readonly introOpen = signal(false);
 
   /** Admin lives in the top-right, not in the public tab strip. */
@@ -48,17 +53,10 @@ export class App implements OnInit {
   ngOnInit(): void {
     this.restoreTheme();
     this.restoreIntro();
-    this.api.getProfile().subscribe({
-      next: (p) => {
-        this.ownerName.set(p.owner_name);
-        this.ready.set(p.ready);
-        this.resumeDownloadable.set(p.resume_downloadable);
-        // Deliberately do NOT jump to the admin tab when the profile is empty.
-        // On a host with an ephemeral disk that state is reached by a restart,
-        // and a visiting recruiter would land on an admin login screen.
-      },
-      error: () => this.ready.set(false),
-    });
+    // Deliberately does NOT jump to the admin tab when the profile is empty.
+    // On a host with an ephemeral disk that state is reached by a restart, and
+    // a visiting recruiter would land on an admin login screen.
+    this.profiles.refresh();
   }
 
   select(tab: Tab): void {

@@ -3,6 +3,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { ApiService } from '../../core/api.service';
+import { ProfileStore } from '../../core/profile.store';
 import { AnalyticsResponse, IngestResponse, Lead, ProfileStatus } from '../../core/models';
 
 @Component({
@@ -15,7 +16,9 @@ import { AnalyticsResponse, IngestResponse, Lead, ProfileStatus } from '../../co
 export class Setup implements OnInit {
   private readonly api = inject(ApiService);
 
-  readonly profile = signal<ProfileStatus | null>(null);
+  private readonly profiles = inject(ProfileStore);
+
+  readonly profile = this.profiles.profile;
   readonly token = signal('');
   readonly unlocked = signal(false);
   readonly checking = signal(false);
@@ -53,10 +56,9 @@ export class Setup implements OnInit {
   }
 
   private refresh(): void {
-    this.api.getProfile().subscribe({
-      next: (p) => this.profile.set(p),
-      error: (e: Error) => this.error.set(e.message),
-    });
+    // Goes through the shared store so the header and chat update too - they
+    // used to keep their own stale copy and show the wrong owner name.
+    this.profiles.refresh();
   }
 
   unlock(): void {
@@ -159,7 +161,7 @@ export class Setup implements OnInit {
     this.notesError.set('');
     this.api.saveNotes(this.notes()).subscribe({
       next: (p) => {
-        this.profile.set(p);
+        this.profiles.set(p);
         this.savedNotes.set(this.notes());
         this.savingNotes.set(false);
         this.notesSaved.set(true);
@@ -173,18 +175,39 @@ export class Setup implements OnInit {
   }
 
   insertTemplate(): void {
+    // Pre-filled with the things a resume cannot say: what you want next, what
+    // you are learning, and the scope you have owned. That last section matters
+    // most - it is the concrete material the assistant uses to answer "are they
+    // senior enough?" with evidence instead of a bare number of years.
     const template = [
+      '## About me',
+      'Based in Mumbai, India. Software engineer working on backend systems',
+      'and applied AI.',
+      '',
       '## Job search',
-      'Actively looking for a new role and open to interviewing now.',
+      'Actively looking to switch and open to interviewing now. Exploring the',
+      'best opportunity rather than the first one - I want to work on harder',
+      'problems and a modern stack.',
       '',
       '## Currently learning',
       'LLMs, RAG pipelines, LangChain and LangGraph for agentic workflows.',
+      'Building real projects with them rather than only following tutorials.',
       '',
       '## What I want next',
-      'Describe the kind of role, team, and problems you want.',
+      'A backend or AI engineering role where I own services end to end.',
+      'Interested in fintech, payments, and AI-product teams.',
+      '',
+      '## Scope I have owned',
+      'Describe the hardest thing you shipped and what you were responsible for:',
+      'design decisions, production support, people you worked with, results.',
+      'Be concrete - this is what answers "can they handle a senior role?".',
       '',
       '## Availability',
       'Notice period, preferred locations, remote or hybrid.',
+      '',
+      '## Outside work',
+      'Travelling and exploring new places, and pulling apart new technology to',
+      'see how it works.',
     ].join('\n');
     // Append rather than replace, so an accidental click never destroys work.
     const current = this.notes().trim();

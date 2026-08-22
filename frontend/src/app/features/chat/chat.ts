@@ -3,8 +3,10 @@ import {
   AfterViewChecked,
   Component,
   ElementRef,
+  Injector,
   OnInit,
   ViewChild,
+  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -12,6 +14,7 @@ import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 import { ApiService } from '../../core/api.service';
+import { ProfileStore } from '../../core/profile.store';
 import { renderMarkdown } from '../../core/markdown';
 import { ChatMessage, LeadPayload, Mode, ProfileStatus, ScreeningAnswer } from '../../core/models';
 
@@ -28,7 +31,9 @@ export class Chat implements OnInit, AfterViewChecked {
 
   @ViewChild('scroller') private scroller?: ElementRef<HTMLElement>;
 
-  readonly profile = signal<ProfileStatus | null>(null);
+  private readonly profiles = inject(ProfileStore);
+
+  readonly profile = this.profiles.profile;
   readonly mode = signal<Mode>('visitor');
   readonly messages = signal<ChatMessage[]>([]);
   readonly suggestions = signal<string[]>([]);
@@ -49,17 +54,25 @@ export class Chat implements OnInit, AfterViewChecked {
   readonly leadError = signal('');
   readonly lead = signal<LeadPayload>({ name: '', company: '', email: '', phone: '', role: '' });
 
+  private readonly injector = inject(Injector);
+  private greeted = false;
   private sessionId: string | null = null;
   private shouldScroll = false;
 
   ngOnInit(): void {
-    this.api.getProfile().subscribe({
-      next: (p) => {
-        this.profile.set(p);
-        this.greet(p);
+    // Greet once the shared profile arrives, so the greeting names whoever the
+    // rest of the UI is naming rather than a separately fetched copy.
+    effect(
+      () => {
+        const p = this.profiles.profile();
+        if (p && !this.greeted) {
+          this.greeted = true;
+          this.greet(p);
+        }
       },
-      error: (e: Error) => this.error.set(e.message),
-    });
+      { injector: this.injector },
+    );
+    this.profiles.refresh();
     this.loadSuggestions();
   }
 
