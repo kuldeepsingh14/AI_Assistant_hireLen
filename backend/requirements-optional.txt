@@ -1,0 +1,4 @@
+# Local semantic embeddings (free, no API key, ~130MB model download on first run).
+# Install only if you want vector search instead of the built-in lexical BM25.
+#   pip install -r requirements-optional.txt
+fastembed==0.5.1

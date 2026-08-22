@@ -1,0 +1,191 @@
+@if (!report()) {
+  <!-- ---------- input form ---------- -->
+  <section class="card intro">
+    <h2>Score this role against the resume</h2>
+    <p class="muted">
+      Paste a job description (or upload the posting). You'll get a weighted fit score, a
+      requirement-by-requirement verdict with evidence pulled from the resume, an honest list of
+      gaps, and a draft cover letter.
+    </p>
+
+    <div class="fields">
+      <label>
+        <span class="lbl">Job title <em class="muted">(optional)</em></span>
+        <input type="text" [ngModel]="jobTitle()" (ngModelChange)="jobTitle.set($event)" placeholder="Senior Backend Engineer" />
+      </label>
+      <label>
+        <span class="lbl">Company <em class="muted">(optional)</em></span>
+        <input type="text" [ngModel]="company()" (ngModelChange)="company.set($event)" placeholder="Acme Corp" />
+      </label>
+    </div>
+
+    <label class="jd-label">
+      <span class="lbl">Job description</span>
+      <textarea
+        rows="12"
+        [ngModel]="jd()"
+        (ngModelChange)="jd.set($event)"
+        [disabled]="file() !== null"
+        placeholder="Paste the full posting here — responsibilities, requirements, and qualifications…"
+      ></textarea>
+    </label>
+
+    <div class="or"><span>or</span></div>
+
+    <div class="upload">
+      @if (file(); as f) {
+        <div class="file-chip">
+          <span>{{ f.name }}</span>
+          <button class="btn small-btn" (click)="clearFile()">Remove</button>
+        </div>
+      } @else {
+        <label class="btn file-btn">
+          Upload the posting (PDF, DOCX, TXT)
+          <input type="file" accept=".pdf,.docx,.txt,.md" (change)="onFile($event)" hidden />
+        </label>
+      }
+    </div>
+
+    @if (error()) {
+      <div class="alert">{{ error() }}</div>
+    }
+
+    <button class="btn btn-primary run" (click)="run()" [disabled]="!canSubmit()">
+      {{ busy() ? 'Analysing…' : 'Run the match' }}
+    </button>
+
+    @if (busy()) {
+      <p class="small muted center">
+        Extracting requirements, then checking each one against the resume. Usually 10–20 seconds.
+      </p>
+    }
+  </section>
+} @else if (report(); as r) {
+  <!-- ---------- report ---------- -->
+  <section class="report">
+    <header class="report-head card">
+      <div class="score-block">
+        <svg viewBox="0 0 120 120" class="ring" role="img" [attr.aria-label]="'Fit score ' + r.score + ' out of 100'">
+          <circle cx="60" cy="60" r="52" class="ring-track" />
+          <circle
+            cx="60"
+            cy="60"
+            r="52"
+            class="ring-fill"
+            [class]="'ring-fill ' + scoreClass(r.score)"
+            [attr.stroke-dasharray]="ringDash()"
+          />
+          <text x="60" y="58" class="score-num" text-anchor="middle">{{ r.score }}</text>
+          <text x="60" y="76" class="score-den" text-anchor="middle">/ 100</text>
+        </svg>
+        <div>
+          <span class="pill" [class]="'pill ' + scoreClass(r.score)">{{ r.verdict }}</span>
+          <h2>{{ r.job_title ?? 'This role' }}</h2>
+          @if (r.company) {
+            <p class="muted company">{{ r.company }}</p>
+          }
+          <p class="summary">{{ r.summary }}</p>
+        </div>
+      </div>
+
+      <div class="tally">
+        <div class="tally-item"><b class="ok">{{ counts().match }}</b><span>Met</span></div>
+        <div class="tally-item"><b class="good">{{ counts().covered }}</b><span>Covered</span></div>
+        <div class="tally-item"><b class="bad">{{ counts().missing }}</b><span>Not yet</span></div>
+      </div>
+
+      <div class="report-actions">
+        <button class="btn" (click)="reset()">← New match</button>
+        <button class="btn btn-primary" (click)="downloadReport()">Download report</button>
+      </div>
+    </header>
+
+    @if (r.pitch) {
+      <section class="card pitch-card">
+        <h3>Why they're worth an interview</h3>
+        <p class="pitch">{{ r.pitch }}</p>
+        @if (r.ramp_up) {
+          <p class="ramp small">
+            <strong>Ramp-up:</strong> {{ r.ramp_up }}
+          </p>
+        }
+      </section>
+    }
+
+    <div class="grid">
+      <section class="card">
+        <h3>Skill coverage</h3>
+        <p class="small muted">Dashed = what the role asks for. Solid = what the resume evidences.</p>
+        <app-radar-chart [axes]="r.radar" />
+      </section>
+
+      <section class="card">
+        <h3>Strengths for this role</h3>
+        <ul class="bullets ok-bullets">
+          @for (s of r.strengths; track s) {
+            <li>{{ s }}</li>
+          }
+        </ul>
+
+        <h3 class="mt">Gaps &amp; how they'd close them</h3>
+        <ul class="bullets bad-bullets">
+          @for (g of r.gaps; track g) {
+            <li>{{ g }}</li>
+          }
+        </ul>
+      </section>
+    </div>
+
+    <section class="card">
+      <h3>Requirement breakdown</h3>
+      <p class="small muted">
+        Must-haves are weighted 3× against nice-to-haves. Each verdict earns credit — met 100%,
+        adjacent experience 70%, partial 50%, actively learning 35%. A verdict with no supporting
+        quote is automatically downgraded.
+      </p>
+      <ul class="reqs">
+        @for (v of r.requirements; track v.requirement) {
+          <li [class]="'req ' + v.status">
+            <div class="req-head">
+              <span class="pill" [class]="'pill ' + statusPill(v.status)">{{ statusLabel(v.status) }}</span>
+              <strong>{{ v.requirement }}</strong>
+              @if (v.category === 'must_have') {
+                <span class="pill must">Must have</span>
+              }
+            </div>
+            <p class="small comment">{{ v.comment }}</p>
+            @if (v.evidence) {
+              <blockquote class="small">{{ v.evidence }}</blockquote>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <h3>Questions a recruiter should ask</h3>
+        <p class="small muted">Aimed at the partial and missing items above.</p>
+        <ol class="questions">
+          @for (q of r.screening_questions; track q) {
+            <li>{{ q }}</li>
+          }
+        </ol>
+      </section>
+
+      <section class="card">
+        <div class="cover-head">
+          <h3>Draft cover letter</h3>
+          <button class="btn small-btn" (click)="copyCoverLetter()">
+            {{ copied() ? 'Copied ✓' : 'Copy' }}
+          </button>
+        </div>
+        <div class="prose small cover" [innerHTML]="html(r.cover_letter)"></div>
+      </section>
+    </div>
+
+    @if (error()) {
+      <div class="alert">{{ error() }}</div>
+    }
+  </section>
+}

@@ -1,0 +1,503 @@
+:host {
+  display: block;
+}
+
+.chat-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  height: min(74vh, 780px);
+  min-height: 0;
+  /* Hard guarantee: whatever ends up inside, nothing paints past the shell and
+     onto the page footer. The percentage caps below should keep it from ever
+     clipping, but a clip is a far better failure than an overlap. */
+  overflow: hidden;
+}
+
+/* ---------- header ---------- */
+.chat-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.mode-switch {
+  display: inline-flex;
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px;
+}
+
+.mode-switch button {
+  font: inherit;
+  font-size: 0.87rem;
+  font-weight: 550;
+  border: 0;
+  background: transparent;
+  color: var(--muted-fg);
+  padding: 0.42rem 0.95rem;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.mode-switch button.active {
+  background: var(--gradient);
+  color: var(--accent-fg);
+  box-shadow: var(--shadow-accent);
+}
+
+.mode-switch .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.4;
+}
+
+.mode-switch button.active .dot {
+  background: var(--accent-fg);
+  opacity: 1;
+}
+
+.head-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.small-btn {
+  padding: 0.38rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+/* ---------- messages ---------- */
+.messages {
+  flex: 1;
+  /* Required for the scroll pane to actually shrink. A flex item defaults to
+     min-height:auto, which refuses to go below its content height - so the
+     column overflows its fixed-height shell and the rows below spill onto the
+     page footer instead of the pane scrolling. */
+  min-height: 0;
+  overflow-y: auto;
+  padding: 1.1rem;
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  scroll-behavior: smooth;
+}
+
+.msg {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.msg.user {
+  flex-direction: row-reverse;
+}
+
+.avatar {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: var(--gradient);
+  color: var(--accent-fg);
+  border: 0;
+  box-shadow: var(--shadow-accent);
+}
+
+.avatar.user {
+  background: var(--surface-3);
+  color: var(--muted-fg);
+  box-shadow: none;
+}
+
+.bubble-wrap {
+  min-width: 0;
+  max-width: 78%;
+}
+
+.msg.user .bubble-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.bubble {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.7rem 0.95rem;
+  overflow-wrap: anywhere;
+  box-shadow: var(--shadow);
+}
+
+.msg.user .bubble {
+  background: var(--gradient);
+  border-color: transparent;
+  color: var(--accent-fg);
+  box-shadow: var(--shadow-accent);
+}
+
+.bubble.error {
+  border-color: color-mix(in srgb, var(--bad) 45%, transparent);
+  background: color-mix(in srgb, var(--bad) 10%, transparent);
+  color: var(--bad);
+}
+
+/* typing indicator */
+.typing {
+  display: inline-flex;
+  gap: 4px;
+  padding: 0.85rem 1rem;
+}
+
+.typing span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted-fg);
+  animation: blink 1.3s infinite ease-in-out;
+}
+
+.typing span:nth-child(2) {
+  animation-delay: 0.18s;
+}
+
+.typing span:nth-child(3) {
+  animation-delay: 0.36s;
+}
+
+@keyframes blink {
+  0%,
+  70%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  35% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+/* ---------- citations ---------- */
+.meta {
+  margin-top: 0.4rem;
+}
+
+.cite-toggle {
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 550;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.citations {
+  list-style: none;
+  margin: 0.55rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.citations li {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+}
+
+.cite-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.3rem;
+}
+
+/* Notes are the owner's own words rather than the document - mark them so a
+   recruiter can weigh the two differently. */
+.pill.note {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  background: var(--accent-soft);
+}
+
+.src {
+  white-space: nowrap;
+}
+
+.relevance {
+  flex: 1;
+  height: 4px;
+  background: var(--surface-3);
+  border-radius: 999px;
+  overflow: hidden;
+  max-width: 90px;
+}
+
+.relevance i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+}
+
+.citations p {
+  margin: 0;
+}
+
+/* ---------- chips ---------- */
+.chips {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  max-height: 25%;
+  overflow-y: auto;
+}
+
+.chip {
+  font: inherit;
+  font-size: 0.82rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--muted-fg);
+  padding: 0.36rem 0.75rem;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease,
+    transform 0.12s ease;
+}
+
+.chip:hover {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: var(--accent-soft);
+  transform: translateY(-1px);
+}
+
+/* ---------- composer ---------- */
+.composer {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-end;
+}
+
+.composer textarea {
+  min-height: 46px;
+  max-height: 150px;
+  padding-top: 0.7rem;
+}
+
+.composer .btn {
+  height: 46px;
+  white-space: nowrap;
+}
+
+.disclaimer {
+  margin: -0.35rem 0 0;
+  text-align: center;
+}
+
+/* ---------- screening pack drawer ---------- */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(560px, 100vw);
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  animation: slide-in 0.22s ease;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+.drawer-head,
+.drawer-foot {
+  padding: 1.1rem 1.35rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.drawer-head h3 {
+  margin-bottom: 0.15rem;
+}
+
+.drawer-head p {
+  margin: 0;
+}
+
+.drawer-foot {
+  border-bottom: 0;
+  border-top: 1px solid var(--border);
+  justify-content: flex-end;
+}
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.35rem;
+}
+
+.pack-item {
+  padding-bottom: 1.1rem;
+  margin-bottom: 1.1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.pack-item:last-child {
+  border-bottom: 0;
+  margin-bottom: 0;
+}
+
+.pack-item h4 {
+  color: var(--accent);
+  margin-bottom: 0.45rem;
+}
+
+@media (max-width: 640px) {
+  .chat-shell {
+    height: min(80vh, 700px);
+  }
+  .bubble-wrap {
+    max-width: 88%;
+  }
+  .chat-head {
+    justify-content: center;
+  }
+}
+
+/* ---------- recruiter contact card ---------- */
+.lead-card {
+  flex: 0 0 auto;
+  max-height: 45%;
+  overflow-y: auto;
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--border));
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, var(--accent) 8%, var(--surface)),
+    var(--surface) 65%
+  );
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  box-shadow: var(--shadow);
+}
+
+.lead-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.lead-head h3 {
+  margin: 0 0 0.15rem;
+  font-size: 1rem;
+}
+
+.lead-head p {
+  margin: 0;
+}
+
+.icon-btn {
+  font: inherit;
+  border: 0;
+  background: transparent;
+  color: var(--muted-fg);
+  cursor: pointer;
+  padding: 0.15rem 0.35rem;
+  border-radius: 6px;
+  line-height: 1;
+}
+
+.icon-btn:hover {
+  color: var(--fg);
+  background: var(--surface-3);
+}
+
+.lead-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 0.75rem;
+  margin: 0.7rem 0 0;
+}
+
+.lead-grid .wide {
+  grid-column: 1 / -1;
+}
+
+.lead-grid .lbl {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted-fg);
+  margin-bottom: 0.25rem;
+}
+
+.lead-grid input {
+  padding: 0.45rem 0.65rem;
+  font-size: 0.9rem;
+}
+
+.lead-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.lead-actions .small {
+  flex: 1;
+  min-width: 12rem;
+}
+
+@media (max-width: 560px) {
+  .lead-grid {
+    grid-template-columns: 1fr;
+  }
+}

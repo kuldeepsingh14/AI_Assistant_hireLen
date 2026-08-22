@@ -1,0 +1,446 @@
+:host {
+  display: block;
+}
+
+/* ---------- form ---------- */
+.intro {
+  max-width: 780px;
+  margin: 0 auto;
+  display: grid;
+  gap: 1rem;
+}
+
+.intro h2 {
+  margin-bottom: 0.25rem;
+}
+
+.intro > p {
+  margin: 0;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+}
+
+label {
+  display: block;
+}
+
+.lbl {
+  display: block;
+  font-size: 0.83rem;
+  font-weight: 600;
+  margin-bottom: 0.32rem;
+  color: var(--muted-fg);
+}
+
+.lbl em {
+  font-style: normal;
+  font-weight: 400;
+}
+
+.jd-label textarea {
+  min-height: 220px;
+}
+
+.or {
+  position: relative;
+  text-align: center;
+  color: var(--muted-fg);
+  font-size: 0.82rem;
+}
+
+.or::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--border);
+}
+
+.or span {
+  position: relative;
+  background: var(--surface);
+  padding: 0 0.75rem;
+}
+
+.upload {
+  display: flex;
+  justify-content: center;
+}
+
+.file-btn {
+  cursor: pointer;
+}
+
+.file-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.4rem 0.4rem 0.85rem;
+  font-size: 0.88rem;
+}
+
+.small-btn {
+  padding: 0.3rem 0.65rem;
+  font-size: 0.82rem;
+}
+
+.run {
+  justify-content: center;
+  padding: 0.75rem;
+  font-size: 1rem;
+}
+
+.center {
+  text-align: center;
+  margin: 0;
+}
+
+/* ---------- report ---------- */
+.report {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.report-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1.5rem 2rem;
+  align-items: center;
+}
+
+.score-block {
+  display: flex;
+  gap: 1.4rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.score-block h2 {
+  margin: 0.4rem 0 0.1rem;
+}
+
+.company {
+  margin: 0 0 0.4rem;
+  font-size: 0.9rem;
+}
+
+.summary {
+  margin: 0;
+  color: var(--muted-fg);
+  font-size: 0.92rem;
+}
+
+.ring {
+  width: 118px;
+  height: 118px;
+  flex: 0 0 auto;
+  transform: rotate(-90deg);
+}
+
+.ring-track {
+  fill: none;
+  stroke: var(--surface-3);
+  stroke-width: 9;
+}
+
+.ring-fill {
+  fill: none;
+  stroke-width: 9;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.8s ease;
+}
+
+.ring-fill.strong {
+  stroke: var(--ok);
+}
+.ring-fill.good {
+  stroke: var(--accent);
+}
+.ring-fill.partial {
+  stroke: var(--warn);
+}
+.ring-fill.weak {
+  stroke: var(--bad);
+}
+
+.score-num,
+.score-den {
+  transform: rotate(90deg);
+  transform-origin: 60px 60px;
+  fill: var(--fg);
+  font-weight: 700;
+}
+
+.score-num {
+  font-size: 30px;
+  /* Stays neutral: the ring already carries the band colour, and tinting the
+     number indigo would clash with a green "strong" or red "weak" ring. */
+}
+
+.score-den {
+  font-size: 12px;
+  fill: var(--muted-fg);
+  font-weight: 500;
+}
+
+.pill.strong {
+  color: var(--ok);
+  border-color: color-mix(in srgb, var(--ok) 40%, transparent);
+  background: color-mix(in srgb, var(--ok) 12%, transparent);
+}
+.pill.good {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  background: var(--accent-soft);
+}
+.pill.partial {
+  color: var(--warn);
+  border-color: color-mix(in srgb, var(--warn) 40%, transparent);
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+}
+.pill.weak {
+  color: var(--bad);
+  border-color: color-mix(in srgb, var(--bad) 40%, transparent);
+  background: color-mix(in srgb, var(--bad) 12%, transparent);
+}
+
+.tally {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.tally-item {
+  text-align: center;
+  display: grid;
+}
+
+.tally-item b {
+  font-size: 1.7rem;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.tally-item span {
+  font-size: 0.76rem;
+  color: var(--muted-fg);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+b.ok {
+  color: var(--ok);
+}
+b.good {
+  color: var(--accent);
+}
+b.warn {
+  color: var(--warn);
+}
+b.bad {
+  color: var(--bad);
+}
+
+.report-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.1rem;
+  align-items: start;
+}
+
+.mt {
+  margin-top: 1.2rem;
+}
+
+.bullets {
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.bullets li {
+  position: relative;
+  padding-left: 1.4rem;
+  font-size: 0.9rem;
+}
+
+.bullets li::before {
+  position: absolute;
+  left: 0;
+  top: -1px;
+  font-weight: 700;
+}
+
+.ok-bullets li::before {
+  content: '✓';
+  color: var(--ok);
+}
+
+.bad-bullets li::before {
+  content: '!';
+  color: var(--bad);
+}
+
+/* requirement list */
+.reqs {
+  list-style: none;
+  margin: 0.9rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.req {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 0.9rem;
+  background: var(--surface-2);
+  transition: box-shadow 0.15s ease;
+}
+
+.req:hover {
+  box-shadow: var(--shadow);
+}
+
+.req.match {
+  border-left-color: var(--ok);
+}
+/* Adjacent experience and active learning are real signal, so they read as
+   accent rather than warning. */
+.req.transferable,
+.req.learning {
+  border-left-color: var(--accent);
+}
+.req.partial {
+  border-left-color: var(--warn);
+}
+.req.missing {
+  border-left-color: var(--bad);
+}
+
+.req-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.req-head strong {
+  font-weight: 600;
+}
+
+.pill.must {
+  background: transparent;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.comment {
+  margin: 0.4rem 0 0;
+  color: var(--muted-fg);
+}
+
+.req blockquote {
+  margin: 0.5rem 0 0;
+  padding: 0.45rem 0.75rem;
+  border-left: 2px solid var(--border);
+  background: var(--surface);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  color: var(--muted-fg);
+  font-style: italic;
+}
+
+.questions {
+  margin: 0.6rem 0 0;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.cover-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.4rem;
+}
+
+.cover-head h3 {
+  margin: 0;
+}
+
+.cover {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.9rem 1rem;
+}
+
+@media (max-width: 860px) {
+  .grid,
+  .fields {
+    grid-template-columns: 1fr;
+  }
+  .report-head {
+    grid-template-columns: 1fr;
+  }
+  .score-block {
+    flex-direction: column;
+    text-align: center;
+  }
+  .tally {
+    justify-content: center;
+  }
+  .report-actions {
+    justify-content: stretch;
+  }
+  .report-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+/* ---------- the pitch ---------- */
+.pitch-card {
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--border));
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, var(--accent) 7%, var(--surface)),
+    var(--surface) 60%
+  );
+}
+
+.pitch {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.65;
+}
+
+.ramp {
+  margin: 0.85rem 0 0;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted-fg);
+}

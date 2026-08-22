@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+data/index/*
+!data/index/.gitkeep
+data/resume/*
+!data/resume/.gitkeep
+*.db
+*.log

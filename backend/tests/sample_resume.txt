@@ -1,0 +1,32 @@
+JANE DOE
+Bengaluru, India | jane.doe@example.com | github.com/janedoe
+
+SUMMARY
+Backend engineer with 4 years building Python services at scale. Focused on
+API design, data pipelines, and cutting cloud spend.
+
+EXPERIENCE
+Senior Backend Engineer, Zeta Payments (2023 - Present)
+- Rebuilt the settlement API in FastAPI, cutting p95 latency from 800ms to 120ms.
+- Led migration of 40 microservices from EC2 to Kubernetes on AWS EKS.
+- Reduced monthly AWS bill by 34% by right-sizing and adding autoscaling.
+
+Backend Engineer, Nimbus Analytics (2021 - 2023)
+- Built an Airflow ETL pipeline processing 2TB of event data daily into Snowflake.
+- Wrote the PostgreSQL sharding layer that supported 5x user growth.
+
+PROJECTS
+TaxOptimizer - A FastAPI + Angular tool that compares Indian tax regimes and
+recommends the cheaper one. Uses Groq for document extraction.
+LogLens - Open-source log anomaly detector in Python, 400 GitHub stars.
+
+SKILLS
+Languages: Python, SQL, TypeScript, Go
+Frameworks: FastAPI, Django, Angular, React
+Cloud & Data: AWS, Docker, Kubernetes, Terraform, Airflow, Snowflake, PostgreSQL, Redis
+
+EDUCATION
+B.E. Computer Science, PES University, 2021. CGPA 8.7/10.
+
+CERTIFICATIONS
+AWS Certified Solutions Architect - Associate (2023)

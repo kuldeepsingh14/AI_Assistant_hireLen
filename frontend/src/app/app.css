@@ -1,0 +1,353 @@
+:host {
+  display: block;
+}
+
+.shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 2.5rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- top bar ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1.1rem;
+  margin-bottom: 1.4rem;
+  position: relative;
+}
+
+.topbar::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--accent) 55%, transparent),
+    color-mix(in srgb, var(--accent-2) 45%, transparent),
+    transparent
+  );
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.logo {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: var(--gradient);
+  color: var(--accent-fg);
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  box-shadow: var(--shadow-accent);
+}
+
+.brand-text {
+  display: grid;
+  line-height: 1.3;
+  min-width: 0;
+}
+
+.brand-text strong {
+  font-size: 1.04rem;
+  letter-spacing: -0.015em;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  width: fit-content;
+}
+
+.brand-text span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tabs {
+  display: inline-flex;
+  gap: 0.15rem;
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px;
+  backdrop-filter: blur(6px);
+}
+
+.tabs button {
+  font: inherit;
+  font-size: 0.87rem;
+  font-weight: 550;
+  border: 0;
+  background: transparent;
+  color: var(--muted-fg);
+  padding: 0.42rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.tabs button:hover {
+  color: var(--fg);
+}
+
+.tabs button.active {
+  background: var(--gradient);
+  color: var(--accent-fg);
+  box-shadow: var(--shadow-accent);
+}
+
+.tabs button.active:hover {
+  color: var(--accent-fg);
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.download-btn {
+  padding: 0.42rem 0.8rem;
+  font-size: 0.85rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* The admin entry point: the owner's identity, not a public-looking tab. */
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: color-mix(in srgb, var(--surface) 75%, transparent);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 550;
+  padding: 0.28rem 0.75rem 0.28rem 0.3rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--muted-fg);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.admin-btn:hover {
+  color: var(--fg);
+  background: var(--surface-3);
+}
+
+.admin-btn.active {
+  color: var(--fg);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.admin-avatar {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--gradient);
+  color: var(--accent-fg);
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.theme-btn {
+  font-size: 1rem;
+  line-height: 1;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--muted-fg);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.theme-btn:hover {
+  color: var(--fg);
+  background: var(--surface-3);
+}
+
+.content {
+  flex: 1;
+}
+
+.footer {
+  text-align: center;
+  padding-top: 2rem;
+}
+
+@media (max-width: 900px) {
+  .admin-name {
+    display: none;
+  }
+  .admin-btn {
+    padding: 0.28rem;
+  }
+}
+
+@media (max-width: 780px) {
+  .topbar {
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  .tabs {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+  .tabs button {
+    flex: 1;
+    padding: 0.42rem 0.5rem;
+  }
+  .download-btn {
+    padding: 0.42rem 0.6rem;
+  }
+}
+
+/* ---------- welcome intro ---------- */
+.intro-banner {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+  border-radius: var(--radius);
+  background: linear-gradient(
+    150deg,
+    color-mix(in srgb, var(--accent) 11%, var(--surface)),
+    color-mix(in srgb, var(--accent-2) 7%, var(--surface)) 55%,
+    var(--surface)
+  );
+  box-shadow: var(--shadow);
+  padding: 1.5rem 1.6rem;
+  margin-bottom: 1.4rem;
+  animation: intro-in 0.3s ease;
+}
+
+@keyframes intro-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.intro-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.85rem;
+  font: inherit;
+  border: 0;
+  background: transparent;
+  color: var(--muted-fg);
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 6px;
+  line-height: 1;
+}
+
+.intro-close:hover {
+  color: var(--fg);
+  background: var(--surface-3);
+}
+
+.intro-eyebrow {
+  margin: 0 0 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.intro-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.55rem;
+  letter-spacing: -0.02em;
+}
+
+.intro-lead {
+  margin: 0;
+  max-width: 62ch;
+  color: var(--muted-fg);
+}
+
+.intro-points {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.9rem;
+  margin: 1.25rem 0 1.25rem;
+}
+
+.intro-point {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+}
+
+.intro-point strong {
+  font-size: 0.92rem;
+}
+
+.intro-point p {
+  margin: 0.1rem 0 0;
+}
+
+.intro-icon {
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+
+.intro-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.link-btn {
+  font: inherit;
+  font-size: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-left: 0.4rem;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 560px) {
+  .intro-banner {
+    padding: 1.25rem 1.1rem;
+  }
+  .intro-title {
+    font-size: 1.3rem;
+  }
+  .intro-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+}

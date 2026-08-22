@@ -1,0 +1,221 @@
+<section class="chat-shell">
+  <header class="chat-head">
+    <div class="mode-switch" role="tablist" aria-label="Assistant mode">
+      <button
+        role="tab"
+        [attr.aria-selected]="mode() === 'visitor'"
+        [class.active]="mode() === 'visitor'"
+        (click)="setMode('visitor')"
+      >
+        <span class="dot"></span> Visitor
+      </button>
+      <button
+        role="tab"
+        [attr.aria-selected]="mode() === 'hr'"
+        [class.active]="mode() === 'hr'"
+        (click)="setMode('hr')"
+      >
+        <span class="dot"></span> HR / Recruiter
+      </button>
+    </div>
+
+    <div class="head-actions">
+      @if (mode() === 'hr' && profile()?.ready) {
+        <button class="btn small-btn" (click)="openPack()">Screening pack</button>
+        @if (!leadSent()) {
+          <button class="btn small-btn" (click)="openLead()">Leave your details</button>
+        }
+      }
+      <button class="btn small-btn" (click)="clear()" [disabled]="busy()">Clear</button>
+    </div>
+  </header>
+
+  @if (profile(); as p) {
+    @if (p.ready && !p.llm_enabled) {
+      <div class="notice">
+        The resume is indexed, but no <code>GROQ_API_KEY</code> is set on the backend — answers
+        will fail until you add one to <code>backend/.env</code>.
+      </div>
+    }
+  }
+
+  <div class="messages" #scroller>
+    @for (msg of messages(); track $index) {
+      <article class="msg" [class.user]="msg.role === 'user'">
+        <div class="avatar" [class.user]="msg.role === 'user'" aria-hidden="true">
+          {{ msg.role === 'user' ? 'You' : 'AI' }}
+        </div>
+
+        <div class="bubble-wrap">
+          @if (msg.pending) {
+            <div class="bubble typing" aria-label="Thinking">
+              <span></span><span></span><span></span>
+            </div>
+          } @else {
+            <div class="bubble" [class.error]="msg.error">
+              <div class="prose" [innerHTML]="html(msg.content)"></div>
+            </div>
+
+            @if (msg.role === 'assistant' && !msg.error) {
+              <div class="meta">
+                @if (msg.grounded === false) {
+                  <span class="pill warn" title="Nothing on file covers this">
+                    Not on file
+                  </span>
+                } @else if (msg.citations?.length) {
+                  <button class="cite-toggle" (click)="toggleCitations($index)">
+                    {{ isOpen($index) ? 'Hide' : 'Show' }} {{ msg.citations!.length }} source{{
+                      msg.citations!.length === 1 ? '' : 's'
+                    }}
+                  </button>
+                }
+              </div>
+
+              @if (isOpen($index) && msg.citations?.length) {
+                <ul class="citations">
+                  @for (c of msg.citations!; track c.chunk_id) {
+                    <li>
+                      <div class="cite-head">
+                        <span class="pill" [class.note]="c.source === 'notes'">
+                          {{ c.section }}
+                        </span>
+                        <span class="src small muted">{{
+                          c.source === 'notes' ? 'own notes' : 'résumé'
+                        }}</span>
+                        <span class="relevance" [attr.title]="'Relevance ' + (c.score * 100 | number: '1.0-0') + '%'">
+                          <i [style.width.%]="c.score * 100"></i>
+                        </span>
+                      </div>
+                      <p class="small muted">{{ c.snippet }}</p>
+                    </li>
+                  }
+                </ul>
+              }
+            }
+          }
+        </div>
+      </article>
+    }
+  </div>
+
+  @if (leadOpen()) {
+    <section class="lead-card">
+      <div class="lead-head">
+        <div>
+          <h3>Hiring for something?</h3>
+          <p class="small muted">
+            Leave your details and {{ ownerName() }} can follow up directly. Optional — you can
+            keep asking without this.
+          </p>
+        </div>
+        <button class="icon-btn" (click)="dismissLead()" aria-label="Dismiss">✕</button>
+      </div>
+
+      <div class="lead-grid">
+        <label>
+          <span class="lbl">Your name *</span>
+          <input type="text" [ngModel]="lead().name" (ngModelChange)="updateLead('name', $event)"
+                 name="leadName" placeholder="Priya Nair" />
+        </label>
+        <label>
+          <span class="lbl">Company</span>
+          <input type="text" [ngModel]="lead().company" (ngModelChange)="updateLead('company', $event)"
+                 name="leadCompany" placeholder="Acme Corp" />
+        </label>
+        <label>
+          <span class="lbl">Email</span>
+          <input type="text" [ngModel]="lead().email" (ngModelChange)="updateLead('email', $event)"
+                 name="leadEmail" placeholder="priya@acme.com" />
+        </label>
+        <label>
+          <span class="lbl">Phone</span>
+          <input type="text" [ngModel]="lead().phone" (ngModelChange)="updateLead('phone', $event)"
+                 name="leadPhone" placeholder="+91 98765 43210" />
+        </label>
+        <label class="wide">
+          <span class="lbl">Role you're hiring for</span>
+          <input type="text" [ngModel]="lead().role" (ngModelChange)="updateLead('role', $event)"
+                 name="leadRole" placeholder="Backend Engineer — Java / Spring" />
+        </label>
+      </div>
+
+      @if (leadError()) {
+        <div class="alert">{{ leadError() }}</div>
+      }
+
+      <div class="lead-actions">
+        <span class="small muted">Email or phone, so they can reach you back.</span>
+        <button class="btn small-btn" (click)="dismissLead()">Not now</button>
+        <button class="btn btn-primary small-btn" (click)="submitLead()"
+                [disabled]="!leadValid || leadBusy()">
+          {{ leadBusy() ? 'Sending…' : 'Send details' }}
+        </button>
+      </div>
+    </section>
+  }
+
+  @if (suggestions().length && !busy()) {
+    <div class="chips">
+      @for (s of suggestions(); track s) {
+        <button class="chip" (click)="ask(s)">{{ s }}</button>
+      }
+    </div>
+  }
+
+  <form class="composer" (ngSubmit)="ask()">
+    <textarea
+      rows="1"
+      [ngModel]="draft()"
+      (ngModelChange)="draft.set($event)"
+      name="draft"
+      (keydown)="onKeydown($event)"
+      [placeholder]="
+        mode() === 'hr'
+          ? 'Ask a screening question — e.g. why should we hire them?'
+          : 'Ask anything about ' + ownerName() + '…'
+      "
+      [disabled]="busy()"
+      aria-label="Your question"
+    ></textarea>
+    <button class="btn btn-primary" type="submit" [disabled]="busy() || !draft().trim()">
+      {{ busy() ? 'Thinking…' : 'Send' }}
+    </button>
+  </form>
+  <!-- The page footer already states where answers come from; repeating it here
+       said the same sentence twice and ate height in a fixed-height column. -->
+</section>
+
+<!-- ---------- screening pack drawer ---------- -->
+@if (packOpen()) {
+  <div class="backdrop" (click)="closePack()"></div>
+  <aside class="drawer" role="dialog" aria-label="Screening pack">
+    <header class="drawer-head">
+      <div>
+        <h3>Screening pack</h3>
+        <p class="small muted">
+          The standard first-round questions, answered from {{ ownerName() }}'s résumé and notes.
+        </p>
+      </div>
+      <button class="btn small-btn" (click)="closePack()" aria-label="Close">✕</button>
+    </header>
+
+    <div class="drawer-body">
+      @if (packBusy()) {
+        <p class="muted">Generating all eight answers — this takes about 20 seconds…</p>
+      } @else {
+        @for (a of pack(); track a.question) {
+          <section class="pack-item">
+            <h4>{{ a.question }}</h4>
+            <div class="prose small" [innerHTML]="html(a.answer)"></div>
+          </section>
+        }
+      }
+    </div>
+
+    @if (pack().length && !packBusy()) {
+      <footer class="drawer-foot">
+        <button class="btn btn-primary" (click)="downloadPack()">Download as Markdown</button>
+      </footer>
+    }
+  </aside>
+}

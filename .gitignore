@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.angular/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+*.db
+*.log
+backend/data/index/*
+!backend/data/index/.gitkeep
+backend/data/resume/*
+!backend/data/resume/.gitkeep
+.DS_Store

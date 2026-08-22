@@ -1,0 +1,35 @@
+# Render's free tier suspends a web service after ~15 minutes with no traffic,
+# and the next request then pays a ~50s cold start — which a recruiter reads as
+# a broken site. This pings the health endpoint often enough to stay awake.
+#
+# Free-tier budget: Render gives 750 instance-hours per month per account. A
+# month is ~730 hours, so ONE always-awake free service fits. If you already
+# keep another Render service awake this way, they will not both fit.
+#
+# Set the repo variable API_URL to your Render base URL:
+#   Settings -> Secrets and variables -> Actions -> Variables -> New variable
+#   Name: API_URL   Value: https://hirelens-api.onrender.com
+
+name: keep-alive
+
+on:
+  schedule:
+    # Every 10 minutes. GitHub queues cron on shared runners, so the real
+    # interval drifts to ~10-20 min under load — still inside Render's window.
+    - cron: "*/10 * * * *"
+  workflow_dispatch: # lets you trigger it by hand from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping /api/health
+        run: |
+          if [ -z "${{ vars.API_URL }}" ]; then
+            echo "::error::Repo variable API_URL is not set. See the comment at the top of this file."
+            exit 1
+          fi
+          # --max-time 90 covers the cold start if the service did fall asleep.
+          code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 90 --retry 2 --retry-delay 15 "${{ vars.API_URL }}/api/health")
+          echo "GET ${{ vars.API_URL }}/api/health -> $code"
+          [ "$code" = "200" ]

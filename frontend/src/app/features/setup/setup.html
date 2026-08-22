@@ -1,0 +1,373 @@
+<div class="owner">
+  <!-- ---------- current status (public info) ---------- -->
+  <section class="card">
+    <h2>Assistant status</h2>
+    @if (profile(); as p) {
+      <dl class="status">
+        <div>
+          <dt>Profile name</dt>
+          <dd>
+            <strong>{{ p.owner_name }}</strong>
+            <span class="muted small">read from the resume</span>
+          </dd>
+        </div>
+        <div class="wide">
+          <dt>Resume</dt>
+          <dd>
+            @if (p.ready) {
+              @if (p.resume_downloadable) {
+                <a class="btn small-btn" [href]="resumeUrl()" download>
+                  <span aria-hidden="true">↓</span> Download {{ p.filename }}
+                </a>
+                <span class="muted small">Anyone can download this from the header.</span>
+              } @else {
+                <span class="muted small">
+                  {{ p.filename }} — indexed, but the original file isn't on disk to download.
+                  Re-upload it to enable the download button.
+                </span>
+              }
+            } @else {
+              <span class="pill warn">No resume loaded</span>
+            }
+          </dd>
+        </div>
+        <div>
+          <dt>Language model</dt>
+          <dd>
+            @if (p.llm_enabled) {
+              <span class="pill ok">Connected</span>
+            } @else {
+              <span class="pill bad">No API key</span>
+            }
+          </dd>
+        </div>
+        <div>
+          <dt>Retrieval</dt>
+          <dd>{{ embedderLabel(p.embedder) }}</dd>
+        </div>
+        <div>
+          <dt>Chunks</dt>
+          <dd>{{ p.chunks }}</dd>
+        </div>
+        @if (p.sections.length) {
+          <div class="wide">
+            <dt>Sections found</dt>
+            <dd class="sections">
+              @for (s of p.sections; track s) {
+                <span class="pill">{{ s }}</span>
+              }
+            </dd>
+          </div>
+        }
+        @if (p.indexed_at) {
+          <div class="wide">
+            <dt>Last indexed</dt>
+            <dd class="muted small">{{ when(p.indexed_at) }}</dd>
+          </div>
+        }
+      </dl>
+
+      <p class="small muted namehint">
+        The name comes from the uploaded resume. To use something different, set
+        <code>OWNER_NAME</code> in <code>backend/.env</code> and restart the backend.
+      </p>
+
+      @if (!p.llm_enabled) {
+        <div class="notice">
+          Add a free Groq API key to <code>backend/.env</code> as <code>GROQ_API_KEY</code> and
+          restart the backend. Get one at
+          <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a>.
+        </div>
+      }
+    } @else {
+      <p class="muted">Loading…</p>
+    }
+  </section>
+
+  <!-- ---------- owner-only area ---------- -->
+  @if (!unlocked()) {
+    <section class="card lock">
+      <h2>Owner access</h2>
+      <p class="muted">
+        Uploading a resume and viewing analytics are restricted, so a visitor can't replace the
+        profile this assistant answers from. Enter the <code>ADMIN_TOKEN</code> from your
+        <code>backend/.env</code>.
+      </p>
+      <form class="lock-form" (ngSubmit)="unlock()">
+        <input
+          type="password"
+          [ngModel]="token()"
+          (ngModelChange)="token.set($event)"
+          name="token"
+          placeholder="Admin token"
+          autocomplete="current-password"
+        />
+        <button class="btn btn-primary" type="submit" [disabled]="checking() || !token().trim()">
+          {{ checking() ? 'Checking…' : 'Unlock' }}
+        </button>
+      </form>
+      @if (error()) {
+        <div class="alert">{{ error() }}</div>
+      }
+    </section>
+  } @else {
+    <section class="card">
+      <div class="head-row">
+        <h2>Upload resume</h2>
+        <button class="btn small-btn" (click)="lock()">Lock</button>
+      </div>
+      <p class="muted">
+        PDF, DOCX, TXT or Markdown, up to 5 MB. Uploading replaces the current profile.
+        Text-based files only — a scanned image PDF has no text to read.
+      </p>
+
+      <div class="upload-row">
+        <label class="btn file-btn">
+          {{ file() ? 'Choose a different file' : 'Choose file' }}
+          <input type="file" accept=".pdf,.docx,.txt,.md" (change)="onFile($event)" hidden />
+        </label>
+        @if (file(); as f) {
+          <span class="file-name">{{ f.name }}</span>
+        }
+        <button class="btn btn-primary" (click)="upload()" [disabled]="!file() || uploading()">
+          {{ uploading() ? 'Indexing…' : 'Upload & index' }}
+        </button>
+      </div>
+
+      @if (result(); as r) {
+        <div class="success">
+          <strong>Indexed {{ r.filename }}</strong> — {{ r.characters | number }} characters split
+          into {{ r.chunks }} chunks across {{ r.sections.length }} sections.
+          <div class="sections">
+            @for (s of r.sections; track s) {
+              <span class="pill">{{ s }}</span>
+            }
+          </div>
+        </div>
+      }
+
+      @if (error()) {
+        <div class="alert">{{ error() }}</div>
+      }
+
+      @if (profile()?.ready) {
+        <div class="danger-row">
+          @if (confirmingReset()) {
+            <span class="small">Remove the indexed resume? The assistant will stop answering.</span>
+            <button class="btn small-btn danger" (click)="reset()">Yes, remove it</button>
+            <button class="btn small-btn" (click)="cancelReset()">Cancel</button>
+          } @else {
+            <button class="btn small-btn danger" (click)="reset()">Remove indexed resume</button>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- ---------- context notes ---------- -->
+    <section class="card">
+      <div class="head-row">
+        <h2>Context beyond the resume</h2>
+        @if (notesSaved()) {
+          <span class="pill ok">Saved</span>
+        }
+      </div>
+      <p class="muted">
+        A resume is a snapshot; this is everything it can't say. Job-search status, what you're
+        learning right now, the role you want, availability. The assistant treats these as
+        authoritative and cites them separately, so it can answer questions your resume can't.
+      </p>
+      <p class="small muted">
+        Use <code>## Heading</code> lines to create sections — each becomes its own citable
+        source.
+      </p>
+
+      <textarea
+        rows="14"
+        class="notes-box"
+        [ngModel]="notes()"
+        (ngModelChange)="notes.set($event)"
+        placeholder="## Job search&#10;Actively looking for a new role…&#10;&#10;## Currently learning&#10;LLMs, RAG, LangChain, LangGraph…"
+      ></textarea>
+
+      <div class="notes-actions">
+        <button class="btn small-btn" (click)="insertTemplate()">Insert starter template</button>
+        <span class="grow"></span>
+        @if (notesDirty) {
+          <span class="small muted">Unsaved changes</span>
+        }
+        <button
+          class="btn btn-primary"
+          (click)="saveNotes()"
+          [disabled]="savingNotes() || !notesDirty"
+        >
+          {{ savingNotes() ? 'Saving…' : 'Save & re-index' }}
+        </button>
+      </div>
+
+      @if (notesError()) {
+        <div class="alert">{{ notesError() }}</div>
+      }
+
+      @if (profile()?.note_sections?.length) {
+        <div class="sections">
+          <span class="lbl">Indexed as:</span>
+          @for (n of profile()!.note_sections; track n) {
+            <span class="pill">{{ n }}</span>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- ---------- analytics ---------- -->
+    <section class="card">
+      <div class="head-row">
+        <h2>What people are asking</h2>
+        <div class="head-buttons">
+          @if (confirmingClearLog()) {
+            <span class="small muted">Clear the question &amp; match log?</span>
+            <button class="btn small-btn danger" (click)="clearLog()">Yes, clear</button>
+            <button class="btn small-btn" (click)="cancelClearLog()">Cancel</button>
+          } @else {
+            <button class="btn small-btn" (click)="loadAnalytics()">Refresh</button>
+            <button class="btn small-btn danger" (click)="clearLog()">Clear</button>
+          }
+        </div>
+      </div>
+
+      @if (analyticsError()) {
+        <div class="alert">{{ analyticsError() }}</div>
+      } @else if (analytics(); as a) {
+        <div class="stats">
+          <div class="stat">
+            <b>{{ a.total_questions }}</b><span>Questions</span>
+          </div>
+          <div class="stat">
+            <b>{{ a.hr_questions }}</b><span>In HR mode</span>
+          </div>
+          <div class="stat">
+            <b>{{ a.total_sessions }}</b><span>Sessions</span>
+          </div>
+          <div class="stat">
+            <b>{{ a.total_jd_matches }}</b><span>JD matches</span>
+          </div>
+          <div class="stat">
+            <b>{{ a.total_leads }}</b><span>Contacts</span>
+          </div>
+          <div class="stat">
+            <b [class.bad]="a.ungrounded_questions > 0">{{ a.ungrounded_questions }}</b>
+            <span>Unanswerable</span>
+          </div>
+        </div>
+
+        @if (a.ungrounded_questions > 0) {
+          <p class="small muted hint">
+            {{ a.ungrounded_questions }} question{{ a.ungrounded_questions === 1 ? '' : 's' }}
+            couldn't be answered from your resume. The ones marked below are worth adding to it.
+          </p>
+        }
+
+        @if (a.top_jd_titles.length) {
+          <div class="titles">
+            <span class="lbl">Roles tested against your resume:</span>
+            @for (t of a.top_jd_titles; track t) {
+              <span class="pill">{{ t }}</span>
+            }
+          </div>
+        }
+
+        @if (a.recent.length) {
+          <ul class="log">
+            @for (q of a.recent; track $index) {
+              <li>
+                <span class="pill" [class.warn]="q.mode === 'hr'">{{ q.mode }}</span>
+                <span class="q" [class.ungrounded]="!q.grounded">{{ q.question }}</span>
+                <span class="when small muted">{{ when(q.asked_at) }}</span>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="muted">No questions logged yet.</p>
+        }
+      } @else {
+        <p class="muted">Loading…</p>
+      }
+    </section>
+
+    <!-- ---------- recruiter leads ---------- -->
+    <section class="card">
+      <div class="head-row">
+        <h2>Who's been in touch</h2>
+        <div class="head-buttons">
+          @if (confirmingClearLeads()) {
+            <span class="small muted">Delete every saved contact?</span>
+            <button class="btn small-btn danger" (click)="clearAllLeads()">Yes, delete all</button>
+            <button class="btn small-btn" (click)="cancelClearLeads()">Cancel</button>
+          } @else {
+            <button class="btn small-btn" (click)="loadLeads()">Refresh</button>
+            @if (leads().length) {
+              <button class="btn small-btn danger" (click)="clearAllLeads()">Clear all</button>
+            }
+          }
+        </div>
+      </div>
+      <p class="muted">
+        Recruiters who left their details in HR mode. Click one to see exactly what they asked.
+      </p>
+
+      @if (leadsError()) {
+        <div class="alert">{{ leadsError() }}</div>
+      } @else if (leads().length) {
+        <ul class="leads">
+          @for (l of leads(); track l.id) {
+            <li class="lead-row">
+              <button class="lead-main" (click)="toggleLead(l.id)">
+                <span class="lead-who">
+                  <strong>{{ l.name }}</strong>
+                  @if (l.company) {
+                    <span class="muted">· {{ l.company }}</span>
+                  }
+                </span>
+                <span class="small muted lead-contact">{{ contactLine(l) }}</span>
+                <span class="small muted lead-when">{{ when(l.created_at) }}</span>
+              </button>
+
+              @if (openLead() === l.id) {
+                <div class="lead-detail">
+                  @if (l.role) {
+                    <p class="small"><strong>Hiring for:</strong> {{ l.role }}</p>
+                  }
+                  @if (l.email) {
+                    <p class="small">
+                      <strong>Email:</strong>
+                      <a [href]="'mailto:' + l.email">{{ l.email }}</a>
+                    </p>
+                  }
+                  @if (l.phone) {
+                    <p class="small">
+                      <strong>Phone:</strong> <a [href]="'tel:' + l.phone">{{ l.phone }}</a>
+                    </p>
+                  }
+                  @if (l.questions.length) {
+                    <p class="small"><strong>They asked:</strong></p>
+                    <ul class="lead-questions">
+                      @for (q of l.questions; track $index) {
+                        <li class="small">{{ q }}</li>
+                      }
+                    </ul>
+                  } @else {
+                    <p class="small muted">They left details without asking anything.</p>
+                  }
+                  <button class="btn small-btn danger" (click)="removeLead(l.id)">
+                    Delete this contact
+                  </button>
+                </div>
+              }
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="muted">No one has left their details yet.</p>
+      }
+    </section>
+  }
+</div>

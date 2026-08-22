@@ -1,0 +1,124 @@
+<div class="shell">
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">{{ initials() }}</span>
+      <div class="brand-text">
+        <strong>{{ ownerName() || 'HireLens' }}</strong>
+        <span class="small muted">AI assistant · ask anything, or score a job</span>
+      </div>
+    </div>
+
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      @for (t of publicTabs; track t.id) {
+        <button
+          role="tab"
+          [attr.aria-selected]="tab() === t.id"
+          [class.active]="tab() === t.id"
+          [title]="t.hint"
+          (click)="select(t.id)"
+        >
+          {{ t.label }}
+        </button>
+      }
+    </nav>
+
+    <div class="top-actions">
+      @if (resumeDownloadable()) {
+        <a
+          class="btn download-btn"
+          [href]="resumeUrl()"
+          download
+          title="Download the original resume file"
+        >
+          <span aria-hidden="true">↓</span> Résumé
+        </a>
+      }
+
+      <button
+        class="theme-btn"
+        (click)="toggleTheme()"
+        [attr.aria-label]="'Switch to ' + (theme() === 'dark' ? 'light' : 'dark') + ' theme'"
+      >
+        {{ theme() === 'dark' ? '☀' : '☾' }}
+      </button>
+
+      <button
+        class="admin-btn"
+        [class.active]="tab() === 'setup'"
+        (click)="select('setup')"
+        [title]="'Admin console for ' + (ownerName() || 'this site')"
+      >
+        <span class="admin-avatar" aria-hidden="true">{{ initials() }}</span>
+        <span class="admin-name">{{ ownerName() || 'Admin' }}</span>
+      </button>
+    </div>
+  </header>
+
+  @if (introOpen()) {
+    <section class="intro-banner">
+      <button class="intro-close" (click)="dismissIntro()" aria-label="Dismiss">✕</button>
+      <p class="intro-eyebrow">Welcome</p>
+      <h1 class="intro-title">
+        Ask anything about {{ ownerName() || 'this candidate' }}
+      </h1>
+      <p class="intro-lead">
+        This is an AI assistant that answers only from their résumé and their own notes — no
+        invented experience. Every answer shows the exact source it came from, so you can check
+        it in one click.
+      </p>
+
+      <div class="intro-points">
+        <div class="intro-point">
+          <span class="intro-icon" aria-hidden="true">💬</span>
+          <div>
+            <strong>Two modes</strong>
+            <p class="small muted">
+              Casual answers for a browse, or recruiter-style answers for a screen.
+            </p>
+          </div>
+        </div>
+        <div class="intro-point">
+          <span class="intro-icon" aria-hidden="true">🎯</span>
+          <div>
+            <strong>Score a job</strong>
+            <p class="small muted">
+              Paste a job description for a scored fit report with evidence and gaps.
+            </p>
+          </div>
+        </div>
+        <div class="intro-point">
+          <span class="intro-icon" aria-hidden="true">📄</span>
+          <div>
+            <strong>Take the résumé</strong>
+            <p class="small muted">Download the original file any time from the header.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="intro-actions">
+        <button class="btn btn-primary" (click)="startIn('chat')">Start asking</button>
+        <button class="btn" (click)="startIn('match')">Score a job description</button>
+      </div>
+    </section>
+  }
+
+  <main class="content">
+    @switch (tab()) {
+      @case ('chat') {
+        <app-chat />
+      }
+      @case ('match') {
+        <app-match />
+      }
+      @case ('setup') {
+        <app-setup />
+      }
+    }
+  </main>
+
+  <footer class="footer small muted">
+    Answers come from {{ ownerName() || 'the candidate' }}'s résumé and their own notes — every
+    claim cites its source.
+    <button class="link-btn" (click)="showIntro()">What is this?</button>
+  </footer>
+</div>

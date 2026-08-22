@@ -1,0 +1,66 @@
+# Render blueprint, read from the repo root on first deploy.
+#
+# The free tier gives 512 MB RAM, one shared CPU, an ephemeral disk, and sleeps
+# after ~15 minutes idle. Every choice below follows from those facts.
+
+services:
+  - type: web
+    name: hirelens-api
+    runtime: python
+    plan: free
+    region: singapore # closest to India; lower latency than the default
+    rootDir: backend # everything below runs relative to backend/
+
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+
+    # One worker. Two would double memory for no throughput gain on a single
+    # shared CPU, and the app holds its index in memory per process.
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1
+
+    healthCheckPath: /api/health
+
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+
+      # Comma-separated. Must include your Vercel URL, or the browser blocks
+      # every request with a CORS error that looks like the API is down.
+      - key: ALLOWED_ORIGINS
+        sync: false
+
+      # Dev-only convenience that accepts any localhost origin. Off in prod.
+      - key: ALLOW_LOCAL_ORIGINS
+        value: "false"
+
+      # auto | fastembed | lexical
+      # MUST be lexical on the free tier: fastembed loads ONNX Runtime plus the
+      # BGE model at request time, which exceeds 512 MB and gets the worker
+      # OOM-killed mid-request. Lexical BM25 needs no model and answers
+      # instantly. Revisit only on a paid instance.
+      - key: EMBEDDER
+        value: lexical
+
+      # Free key from https://console.groq.com/keys. Without it, chat and
+      # matching return 503 with an explanatory message.
+      - key: GROQ_API_KEY
+        sync: false
+
+      # Unlocks resume upload and the analytics console. Render generates a
+      # strong value; read it from the dashboard after the first deploy.
+      - key: ADMIN_TOKEN
+        generateValue: true
+
+      # Pronouns the assistant uses for you: they/them | she/her | he/him.
+      - key: OWNER_PRONOUNS
+        value: they/them
+
+      # Leave unset to read the name from the uploaded resume.
+      - key: OWNER_NAME
+        sync: false
+
+      - key: PYTHONDONTWRITEBYTECODE
+        value: "1"
+      - key: PYTHONUNBUFFERED
+        value: "1"
