@@ -36,10 +36,11 @@
 
       <button
         class="theme-btn"
-        (click)="toggleTheme()"
-        [attr.aria-label]="'Switch to ' + (theme() === 'dark' ? 'light' : 'dark') + ' theme'"
+        (click)="cycleTheme()"
+        [attr.aria-label]="themeLabel()"
+        [attr.title]="themeLabel()"
       >
-        {{ theme() === 'dark' ? '☀' : '☾' }}
+        {{ themeIcon() }}
       </button>
 
       <button
