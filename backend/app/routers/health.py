@@ -19,4 +19,9 @@ async def health() -> dict:
         "embedder": index.embedder,
         "llm_enabled": settings.llm_enabled,
         "model": settings.groq_model if settings.llm_enabled else None,
+        # Not secret - a browser can discover these by trial - and being able to
+        # read them back is the difference between "CORS is broken" and "the
+        # value on the host has a typo".
+        "allowed_origins": settings.origins,
+        "allow_local_origins": settings.allow_local_origins,
     }

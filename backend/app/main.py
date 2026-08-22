@@ -29,6 +29,11 @@ async def lifespan(app: FastAPI):
         log.info("Profile seeded from backend/data/seed/")
     else:
         log.info("No resume indexed yet. Upload one via POST /api/profile/upload.")
+    log.info(
+        "CORS allows %s%s",
+        settings.origins or "NO ORIGINS - browser requests will all be blocked",
+        " (+ any localhost port)" if settings.allow_local_origins else "",
+    )
     if not settings.llm_enabled:
         log.warning("GROQ_API_KEY is not set - chat and matching will return 503 until it is.")
     yield
