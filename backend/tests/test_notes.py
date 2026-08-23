@@ -173,3 +173,17 @@ def test_match_report_prose_is_pronoun_normalized() -> None:
     assert fixed.comment == "They have four years of Java."
     # Status and weighting must be untouched by a text pass.
     assert fixed.status == "match" and fixed.category == "must_have"
+
+
+def test_backslash_paths_are_split_not_just_sanitised() -> None:
+    r"""Regression: the separator class was once r"[\/]" — forward slash only.
+
+    Traversal was still blocked, because the character filter rewrites a
+    backslash to "_" and the leading junk is stripped. But a Windows path came
+    out as "Windows_x.pdf" instead of "x.pdf", which is the sanitiser papering
+    over the split rather than the split working.
+    """
+    backslash = chr(92)
+    assert safe_filename(f"C:{backslash}Windows{backslash}x.pdf") == "x.pdf"
+    assert safe_filename(f"..{backslash}..{backslash}evil.pdf") == "evil.pdf"
+    assert safe_filename(f"folder{backslash}sub{backslash}résumé.pdf").endswith(".pdf")

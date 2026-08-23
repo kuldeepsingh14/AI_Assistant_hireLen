@@ -75,7 +75,7 @@ def safe_filename(filename: str, fallback: str = "resume") -> str:
     characters that cannot mean anything to a filesystem.
     """
     # Handle both separators regardless of host OS, plus Windows drive prefixes.
-    base = re.split(r"[\/]", filename.strip())[-1]
+    base = re.split(r"[\\/]", filename.strip())[-1]
     base = re.sub(r"^[A-Za-z]:", "", base)
 
     stem, _, ext = base.rpartition(".")
