@@ -8,6 +8,9 @@ when someone asks you about this project.
 Read the [Request lifecycle](#request-lifecycle) first. Everything else is detail
 hanging off it.
 
+For the code itself — real snippets, explained block by block — see
+[`CODE_WALKTHROUGH.md`](CODE_WALKTHROUGH.md).
+
 ---
 
 ## 1. What the system is

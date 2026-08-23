@@ -13,7 +13,8 @@ Everything runs on free tiers. No paid API, no vector database, no hosting bill.
 
 ---
 
-> **New to the code?** [`ARCHITECTURE.md`](ARCHITECTURE.md) walks through
+> **New to the code?** [`CODE_WALKTHROUGH.md`](CODE_WALKTHROUGH.md) explains the
+> actual code block by block. [`ARCHITECTURE.md`](ARCHITECTURE.md) walks through
 > every file: what it does, which pattern it implements, and what breaks
 > without it — plus deployment, update flow, and how the two apps connect.
 
