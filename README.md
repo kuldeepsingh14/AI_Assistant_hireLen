@@ -13,6 +13,10 @@ Everything runs on free tiers. No paid API, no vector database, no hosting bill.
 
 ---
 
+> **New to the code?** [`ARCHITECTURE.md`](ARCHITECTURE.md) walks through
+> every file: what it does, which pattern it implements, and what breaks
+> without it — plus deployment, update flow, and how the two apps connect.
+
 ## What makes it more than a resume chatbot
 
 | Feature | Why it matters |
