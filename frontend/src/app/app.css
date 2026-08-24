@@ -351,3 +351,32 @@
     justify-content: center;
   }
 }
+
+/* ---------- loading skeleton ---------- */
+.skeleton {
+  display: block;
+  border-radius: 5px;
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 25%,
+    var(--surface-3) 37%,
+    var(--surface-2) 63%
+  );
+  background-size: 300% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton-name {
+  width: 8.5rem;
+  height: 1.05rem;
+  margin: .18rem 0 .2rem;
+}
+
+@keyframes shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+}

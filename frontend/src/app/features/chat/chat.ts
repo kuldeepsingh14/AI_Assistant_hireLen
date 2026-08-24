@@ -34,6 +34,9 @@ export class Chat implements OnInit, AfterViewChecked {
   private readonly profiles = inject(ProfileStore);
 
   readonly profile = this.profiles.profile;
+  readonly loaded = this.profiles.loaded;
+  readonly slow = this.profiles.slow;
+  readonly failed = this.profiles.failed;
   readonly mode = signal<Mode>('visitor');
   readonly messages = signal<ChatMessage[]>([]);
   readonly suggestions = signal<string[]>([]);

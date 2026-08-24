@@ -6,8 +6,10 @@
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
-  height: min(74vh, 780px);
-  min-height: 0;
+  /* Taller than it was: in HR mode the column also carries the invitation bar
+     and two rows of chips, which squeezed the conversation to a few lines. */
+  height: min(82vh, 900px);
+  min-height: 30rem;
   /* Hard guarantee: whatever ends up inside, nothing paints past the shell and
      onto the page footer. The percentage caps below should keep it from ever
      clipping, but a clip is a far better failure than an overlap. */
@@ -83,11 +85,12 @@
 /* ---------- messages ---------- */
 .messages {
   flex: 1;
-  /* Required for the scroll pane to actually shrink. A flex item defaults to
-     min-height:auto, which refuses to go below its content height - so the
-     column overflows its fixed-height shell and the rows below spill onto the
-     page footer instead of the pane scrolling. */
-  min-height: 0;
+  /* A flex item defaults to min-height:auto, which refuses to shrink below its
+     content - the column then overflows its fixed-height shell and the rows
+     below spill onto the page footer. Any explicit value fixes that; a floor
+     rather than 0 also stops the siblings squeezing the conversation to
+     nothing when HR mode adds the invitation bar. */
+  min-height: 11rem;
   overflow-y: auto;
   padding: 1.1rem;
   background: color-mix(in srgb, var(--surface) 55%, transparent);
@@ -516,4 +519,55 @@
   .bubble-wrap {
     max-width: 88%;
   }
+}
+
+/* ---------- first-load state ---------- */
+.loading-pane {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .55rem;
+  text-align: center;
+  margin: auto;
+  padding: 1.5rem 1rem;
+  max-width: 34rem;
+}
+
+.loading-title {
+  margin: 0;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.loading-note {
+  margin: 0;
+  max-width: 30rem;
+  line-height: 1.55;
+}
+
+.loading-dots {
+  display: flex;
+  gap: .35rem;
+}
+
+.loading-dots span {
+  width: .5rem;
+  height: .5rem;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: .35;
+  animation: pulse 1.15s ease-in-out infinite;
+}
+
+.loading-dots span:nth-child(2) { animation-delay: .16s; }
+.loading-dots span:nth-child(3) { animation-delay: .32s; }
+
+@keyframes pulse {
+  0%, 100% { opacity: .28; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-dots span { animation: none; opacity: .6; }
 }

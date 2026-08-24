@@ -46,6 +46,24 @@
   }
 
   <div class="messages" #scroller>
+    @if (!loaded()) {
+      <div class="loading-pane" role="status" aria-live="polite">
+        <div class="loading-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+        <p class="loading-title">Loading the profile…</p>
+        @if (slow()) {
+          <p class="small muted loading-note">
+            The API is on a free tier that sleeps when idle, so the first request after a quiet
+            spell can take up to a minute to wake it. Later questions are fast.
+          </p>
+        }
+      </div>
+    } @else if (failed()) {
+      <div class="loading-pane" role="status">
+        <p class="loading-title">Couldn't reach the assistant</p>
+        <p class="small muted loading-note">{{ failed() }}</p>
+      </div>
+    }
+
     @for (msg of messages(); track $index) {
       <article class="msg" [class.user]="msg.role === 'user'">
         <div class="avatar" [class.user]="msg.role === 'user'" aria-hidden="true">

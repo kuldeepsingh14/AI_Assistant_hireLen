@@ -27,6 +27,7 @@ export class App implements OnInit {
   private readonly profiles = inject(ProfileStore);
 
   readonly ownerName = this.profiles.ownerName;
+  readonly loaded = this.profiles.loaded;
   readonly ready = this.profiles.ready;
   // 'auto' follows the device; an explicit choice overrides and persists.
   readonly theme = signal<ThemeChoice>('auto');

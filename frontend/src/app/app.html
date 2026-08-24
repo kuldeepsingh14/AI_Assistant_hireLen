@@ -3,7 +3,13 @@
     <div class="brand">
       <span class="logo" aria-hidden="true">{{ initials() }}</span>
       <div class="brand-text">
-        <strong>{{ ownerName() || 'HireLens' }}</strong>
+        @if (loaded()) {
+          <strong>{{ ownerName() || 'HireLens' }}</strong>
+        } @else {
+          <!-- A placeholder name would be replaced a second later; a skeleton
+               reads as loading rather than as wrong information. -->
+          <span class="skeleton skeleton-name" aria-label="Loading"></span>
+        }
         <span class="small muted">AI assistant · ask anything, or score a job</span>
       </div>
     </div>
